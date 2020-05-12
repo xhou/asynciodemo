@@ -3,7 +3,7 @@ import hashlib
 
 HOST_PORT = 55555
 HOST_ADDR = '127.0.0.1'
-DELAY = 5 
+DELAY = 1 
 
 async def tcp_echo_client(message):
     reader, writer = await asyncio.open_connection(HOST_ADDR, HOST_PORT)
@@ -21,18 +21,16 @@ async def tcp_echo_client(message):
 
 async def process(reader, writer):
     data = await reader.readline()
-    message = data.decode()
+    message = data.decode().strip()
     addr = writer.get_extra_info('peername')
     print(f"Received {message!r} from {addr!r}")
-
-    rec = 
     # Simulate latencies.
     print(f"Wait for {DELAY} seconds")
+    reply = hashlib.md5(message.encode()).hexdigest()
     await asyncio.sleep(DELAY)
-    print(f"Send: {message!r}")
-    writer.write(data)
+    print(f"Send: {reply!r}")
+    writer.write(reply.encode())
     await writer.drain()
-
     print("Close the connection")
     writer.close()
 
